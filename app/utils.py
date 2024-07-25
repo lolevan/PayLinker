@@ -1,5 +1,5 @@
 import hashlib
-
+from passlib.hash import pbkdf2_sha256
 from app.config import SECRET_KEY
 
 
@@ -11,3 +11,11 @@ def generate_signature(data):
 
 def verify_signature(data, signature):
     return generate_signature(data) == signature
+
+
+def hash_password(password):
+    return pbkdf2_sha256.hash(password)
+
+
+def verify_password(password, hashed_password):
+    return pbkdf2_sha256.verify(password, hashed_password)

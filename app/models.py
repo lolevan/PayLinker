@@ -1,9 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-
-from app.auth import hash_password
-
+from sqlalchemy.orm import relationship
+from app.utils import hash_password
 
 Base = declarative_base()
 

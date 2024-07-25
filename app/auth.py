@@ -1,8 +1,9 @@
 from sanic import Sanic
 from sanic_jwt import exceptions, initialize
+
 from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from passlib.hash import pbkdf2_sha256
+
+from app.utils import verify_password
 from app.models import User
 
 
@@ -17,7 +18,7 @@ async def authenticate(request, *args, **kwargs):
         result = await session.execute(select(User).filter_by(email=email))
         user = result.scalar()
 
-        if user and pbkdf2_sha256.verify(password, user.password):
+        if user and verify_password(password, user.password):
             return {'user_id': user.id, 'email': user.email, 'is_admin': user.is_admin}
 
         raise exceptions.AuthenticationFailed("Invalid email or password.")
@@ -35,11 +36,3 @@ def extend_payload(payload, user, *args, **kwargs):
 
 def setup_jwt(app: Sanic):
     initialize(app, authenticate=authenticate, retrieve_user=retrieve_user, extend_payload=extend_payload)
-
-
-def hash_password(password):
-    return pbkdf2_sha256.hash(password)
-
-
-def verify_password(password, hashed_password):
-    return pbkdf2_sha256.verify(password, hashed_password)
