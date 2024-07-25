@@ -1,10 +1,14 @@
-from app.models import Base, User, Account
+import asyncio
+
+from app.models import Base, User
+from app.utils import hash_password
+from app.config import DATABASE_URL
+
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.utils import hash_password
+from sqlalchemy import select
 
-DATABASE_URL = 'postgresql+asyncpg://user:password@db/myapp'
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
@@ -12,22 +16,27 @@ async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession
 
 async def create_initial_data():
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)  # Создаем таблицы
+        await conn.run_sync(Base.metadata.create_all)
 
     async with async_session() as session:
         async with session.begin():
-            user = User(email='user@example.com', full_name='Test User', password=hash_password('userpass'))
-            admin = User(email='admin@example.com', full_name='Admin User', password=hash_password('adminpass'),
-                         is_admin=1)
-            session.add(user)
-            session.add(admin)
+            existing_user = await session.execute(select(User).filter_by(email='user@example.com'))
+            if existing_user.scalar():
+                print("User with email 'user@example.com' already exists.")
+            else:
+                user = User(email='user@example.com', full_name='Test User', password=hash_password('password'),
+                            is_admin=0)
+                session.add(user)
+
+            existing_admin = await session.execute(select(User).filter_by(email='admin@example.com'))
+            if existing_admin.scalar():
+                print("User with email 'admin@example.com' already exists.")
+            else:
+                admin = User(email='admin@example.com', full_name='Admin User', password=hash_password('password'),
+                             is_admin=1)
+                session.add(admin)
+
             await session.commit()
 
-        async with session.begin():
-            account = Account(user_id=user.id, balance=1000)
-            session.add(account)
-            await session.commit()
 
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(create_initial_data())
+asyncio.run(create_initial_data())

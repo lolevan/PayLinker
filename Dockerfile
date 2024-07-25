@@ -11,4 +11,4 @@ COPY . .
 ENV PYTHONPATH=/app
 
 # Добавляем команду ожидания перед выполнением миграций и запуском приложения
-CMD ["sh", "-c", "sleep 10; python app/migrations/001_initial.py && python main.py"]
+CMD ["sh", "-c", "sleep 5; python app/migrations/001_initial.py && python main.py"]
