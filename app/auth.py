@@ -5,6 +5,7 @@ from sqlalchemy.future import select
 
 from app.utils import verify_password
 from app.models import User
+from app.config import JWT_SECRET
 
 
 async def authenticate(request, *args, **kwargs):
@@ -14,7 +15,7 @@ async def authenticate(request, *args, **kwargs):
     if not email or not password:
         raise exceptions.AuthenticationFailed("Email or password not provided.")
 
-    async with request.app.db.session() as session:
+    async with request.app.ctx.db() as session:
         result = await session.execute(select(User).filter_by(email=email))
         user = result.scalar()
 
@@ -35,4 +36,5 @@ def extend_payload(payload, user, *args, **kwargs):
 
 
 def setup_jwt(app: Sanic):
-    initialize(app, authenticate=authenticate, retrieve_user=retrieve_user, extend_payload=extend_payload)
+    initialize(app, authenticate=authenticate, retrieve_user=retrieve_user, extend_payload=extend_payload,
+               secret=JWT_SECRET)

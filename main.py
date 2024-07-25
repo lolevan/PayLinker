@@ -1,4 +1,5 @@
 from sanic import Sanic
+from sanic import Sanic
 from sanic_ext import Extend
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +22,7 @@ async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession
 async def setup_db(app, loop):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    app.db = async_session
+    app.ctx.db = async_session
 
 # JWT setup
 setup_jwt(app)
