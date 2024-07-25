@@ -1,0 +1,7 @@
+sanic
+sanic-ext
+sqlalchemy
+asyncpg
+sanic-jwt
+alembic
+
