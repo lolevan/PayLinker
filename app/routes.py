@@ -50,7 +50,9 @@ async def get_users(request):
 async def create_user(request):
     data = request.json
     async with request.app.db.session() as session:
-        user = User(email=data['email'], full_name=data.get('full_name'), password=data['password'], is_admin=data.get('is_admin', 0))
+        user = User(email=data['email'], full_name=data.get('full_name'))
+        user.set_password(data['password'])
+        user.is_admin = data.get('is_admin', 0)
         session.add(user)
         await session.commit()
         return response.json({'id': user.id, 'email': user.email, 'full_name': user.full_name})

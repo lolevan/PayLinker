@@ -1,12 +1,11 @@
 from sanic import Sanic
 from sanic_ext import Extend
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from sanic_jwt import Initialize
-
+from app.auth import setup_jwt
 from app.config import DATABASE_URL
 from app.models import Base
 from app.routes import bp
@@ -26,7 +25,7 @@ async def setup_db(app, loop):
     app.dp = async_session
 
 # JWT setup
-Initialize(app, authenticate=lambda: None)
+setup_jwt(app)
 
 # Register blueprints
 app.blueprint(bp)
@@ -34,4 +33,3 @@ app.blueprint(bp)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
-

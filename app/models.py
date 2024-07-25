@@ -2,6 +2,9 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
+from app.auth import hash_password
+
+
 Base = declarative_base()
 
 
@@ -14,6 +17,9 @@ class User(Base):
     is_admin = Column(Integer, default=0)
     accounts = relationship('Account', back_populates='user')
     transactions = relationship('Transaction', back_populates='user')
+
+    def set_password(self, password):
+        self.password = hash_password(password)
 
 
 class Account(Base):

@@ -4,4 +4,4 @@ sqlalchemy
 asyncpg
 sanic-jwt
 alembic
-
+passlib
