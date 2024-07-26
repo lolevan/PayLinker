@@ -1,5 +1,4 @@
 from sanic import Sanic
-from sanic import Sanic
 from sanic_ext import Extend
 
 from sqlalchemy.ext.asyncio import AsyncSession
